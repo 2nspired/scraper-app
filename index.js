@@ -1,7 +1,6 @@
-import axios, {isCancel, AxiosError} from 'axios';
-import * as cheerio from 'cheerio';
 import Express, { response } from 'express';
 import puppeteer from 'puppeteer';
+import * as cheerio from 'cheerio';
 
 const port = 4000;
 const app = Express();
@@ -12,7 +11,7 @@ const url = 'https://hnldoc.ehawaii.gov/hnldoc/browse/bills';
 (async () => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto('https://hnldoc.ehawaii.gov/hnldoc/browse/bills');
+    await page.goto(url);
     await page.screenshot({ path: 'image.png'});
     const pageData = await page.evaluate(() => {
         return { 
@@ -23,52 +22,31 @@ const url = 'https://hnldoc.ehawaii.gov/hnldoc/browse/bills';
     });
 // console.log(pageData);
 
-
 const bills = []
 const $ = cheerio.load(pageData.html);
-$('#results .table tbody tr td').each(() => {
-    title = $(this).find('a').text();
-    url = $(this).find('a').attr('href');
-    shortDesc = $(this).find('.fileDesc').text();
+// console.log($('tbody tr td').find('a').attr('href'));
+$('tbody tr').each(function() {
+    let title = $(this).find('a').text();
+    let url = $(this).find('a').attr('href');
+    let shortDesc = $(this).find('.fileDesc').text();
+    let introducer = $(this).find('.type').text();
+    let dateIntroduced = $(this).find('.date').text();
     bills.push({
         title,
         url,
-        shortDesc
+        shortDesc,
+        introducer,
+        dateIntroduced,
     })
 });
 
+console.log('----- returning -----')
 console.log(bills);
-
-
 
 await browser.close();
 })().catch(err => console.log(err))
 
 
 app.listen(4000, () => {console.log(`Server is running on port ${port}`)});
-
-
-// axios(url)
-//     .then(response => {
-//         const html = response.data;
-//         // console.log(html);
-//         const bills =[];
-//         const $ = cheerio.load(html);
-//         console.log($('.results', html));
-//         $('.table-responsive', html).each(function() {
-//             // const title = $(this).find('a').text();
-//             // const url = $(this).find('a').attr('href');
-//             // const desc = $(this).find('.fileDesc').text();
-//             bills.push({
-//                 // title,
-//                 // url,
-//                 // desc,
-//             })
-//     })
-//     console.log(bills);
-    
-// }).catch(err => console.log(err))
-
-    // class .odd .even .fileDesc or <a> tag
 
 
