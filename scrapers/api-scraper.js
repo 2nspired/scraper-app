@@ -77,14 +77,13 @@ const mockBill = [
     // console.log('html:', pageData.html)
     const $ = cheerio.load(pageData.html);
     const statusChanges = [];
-    const $billStatusSelector = $("#eventTables_wrapper tbody tr");
+    const $billStatusSelector = "#eventTables_wrapper tbody tr";
     console.log("billStatusSelector:", $($billStatusSelector.html()));
     const $changeDateSelector = $("td:eq(0)");
     const $changeTypeSelector = $("td:eq(1)");
     const $changeDescSelector = $("td:eq(2)");
     $($billStatusSelector).each(function (i, element) {
       const statusChange = {};
-      statusChanges.push(statusChange);
       (function addChange() {
         $changeDateSelector.each(function (i, element) {
           statusChange.date = $(this).text().trim();
@@ -95,6 +94,7 @@ const mockBill = [
         $changeDescSelector.each(function (i, element) {
           statusChange.desc = $(this).text().trim();
         });
+        statusChanges.push(statusChange);
         console.log("statusChange:", statusChange);
       })();
     });
